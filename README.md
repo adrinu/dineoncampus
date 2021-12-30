@@ -16,10 +16,8 @@ The mobile application makes a GET call to the API, returns a JSON response cont
 | :-------- | :------- | :------------------------- |
 | `schoolname` | `string` | Name of the school to get menu from |
 
-[**Try It!**](https://0qszzssmbk.execute-api.us-east-2.amazonaws.com/default/scrape-dineoncampus?schoolname=NYU) 
+Pick a schoolname from [dineoncampus_urls json file](https://github.com/adrinu/mealbuddyapp-backend/blob/master/dineoncampus_urls.json) and try it! Or just [click me](https://0qszzssmbk.execute-api.us-east-2.amazonaws.com/default/scrape-dineoncampus?schoolname=NYU) 
 
 ## Roadmap
 
 - [Add more schools for the script to scrape](https://github.com/adrinu/mealbuddyapp-backend/blob/master/dineoncampus_urls.json)
-
-
