@@ -1,6 +1,6 @@
 # mealbuddyapp-scrapetool
 
-Scapes a school's menu on dineoncampus.com and updates dynamoDB database.
+Scapes a school's menu on dineoncampus.com and updates dynamoDB database. This script runs on EC2 instance once everyday to update database with new menus for the day
 
 ## API Reference
 
@@ -21,3 +21,4 @@ Pick a schoolname from [dineoncampus_urls json file](https://github.com/adrinu/m
 ## Roadmap
 
 - [Add more schools for the script to scrape](https://github.com/adrinu/mealbuddyapp-backend/blob/master/dineoncampus_urls.json)
+- Add a API call to the rerun scrape script to update a school menu if there were any changes made to the menu.
