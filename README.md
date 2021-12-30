@@ -1,4 +1,4 @@
-# mealbuddy-scrapetool
+# mealbuddyapp-scrapetool
 
 Scapes a school's menu on dineoncampus.com and updates dynamoDB database.
 
