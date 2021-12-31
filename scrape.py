@@ -2,8 +2,7 @@ from playwright.sync_api import sync_playwright
 from database_ops import add_school
 import logging
 
-logging.basicConfig(filename="scrape.log", format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
-logger = logging.getLoggerClass()
+logging.basicConfig(filename="scrape.log", format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
 
 
 def convert_to_float(s) -> float:
@@ -21,7 +20,8 @@ def convert_to_float(s) -> float:
     try:
         return float(num)
     except ValueError:
-        return float("".join([i for i in num if i in allowed_chars]))
+        res = "".join([i for i in num if i in allowed_chars])
+        return res if res != "" else 0.0
         
 
 def extract_nutrient_info(s) -> dict:
@@ -58,7 +58,7 @@ def scrape_school_menu(schoolname, school_endurl) -> None:
     """
 
     with sync_playwright() as p:
-        browser = p.chromium.launch()
+        browser = p.webkit.launch()
         
         page = browser.new_page()
         page.goto("https://dineoncampus.com/{}".format(school_endurl))
@@ -82,11 +82,11 @@ def scrape_school_menu(schoolname, school_endurl) -> None:
             
             tabs = page.query_selector_all('css=[role="tab"]')
             if not tabs:
-                logger.warning("Menu not loaded for {}".format(item.inner_text().strip()))
-            else:
-                logger.info("Menu loaded {}".format(item.inner_text()))
+                logging.warning(msg="Menu not loaded for {}".format(item.inner_text().strip()))
+            else:  
+                logging.info(msg="Menu loaded {}".format(item.inner_text()))
                 for tab in tabs:
-                    logger.info("Getting meals for the tab '{}'".format(tab.inner_text().strip()))
+                    logging.info(msg="Getting meals for the tab '{}'".format(tab.inner_text().strip()))
                     store_tab = {}
                     # Wait for the page to load
                     page.wait_for_timeout(5000)
@@ -119,14 +119,18 @@ def scrape_school_menu(schoolname, school_endurl) -> None:
                             store_nutrients["Serving Size"] = portions[i]
                             
                         except Exception as e:
-                            logger.error("Exception occued", exc_info=True)
-            places_to_eat[item.inner_text()] = store_tab
+                            logging.error("Exception occured", exc_info=True)
+                places_to_eat[item.inner_text()] = store_tab
         
         # Log information about adding data to database
         status_code = add_school(schoolname, {schoolname: places_to_eat})
         if status_code == 200:
-            logger.info("Successfully added {} to the database".format(schoolname))
+            logging.info(msg="Successfully added {} to the database".format(schoolname))
         else:
-            logger.error("Recieved a HTTP Status code of {}", status_code)
+            logging.error(msg="Recieved a HTTP Status code of {}".format(status_code))
         
+        logging.info(msg="Completed Scraping!")
         browser.close()
+        
+
+scrape_school_menu("NYU", "NYUeats/whats-on-the-menu")
