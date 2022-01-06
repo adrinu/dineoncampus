@@ -1,5 +1,3 @@
-from boto3.resources.model import Request
-from botocore.config import Config
 import boto3
 import json
 
@@ -13,8 +11,17 @@ session = boto3.Session(
     )
 db = session.resource(service_name="dynamodb", region_name='us-east-2')
 
+def get_menu(schoolname, tablename=secrets["tablename"]):
+    """
+    Returns a dict of school menu
 
-def get_menu(schoolname, tablename=secrets["tablename"]) -> int:
+    Args:
+        schoolname (str): School name
+        tablename (str, optional): Name of table in db. Defaults to secrets["tablename"].
+
+    Returns:
+        dict: Menu of school 
+    """
     table = db.Table(tablename)
     response = table.get_item(
         TableName="school_meals",
@@ -22,7 +29,12 @@ def get_menu(schoolname, tablename=secrets["tablename"]) -> int:
           'schoolname': schoolname
        }
     ) 
-    return response
+    if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
+        try:
+            return response["Item"]
+        except KeyError:
+            return {}
+    return response["ResponseMetadata"]["HTTPStatusCode"]
 
 def add_menu(schoolname, data, tablename=secrets["tablename"]) -> int:
     """
@@ -43,30 +55,4 @@ def add_menu(schoolname, data, tablename=secrets["tablename"]) -> int:
             "meals": data,
         }
     )
-    return response["HTTPStatusCode"]
-
-def update_menu(schoolname, new_data, tablename=secrets["tablename"]) -> int:
-    """
-    Updates a school's database info with new meals
-
-    Args:
-        schoolname (str): School name
-        new_data (dict): Parsed information about meals
-        tablename (str, optional): Table name stored in dynamoDB. Defaults to secrets["tablename"].
-
-    Returns:
-        [int]: HTTP Status code
-    """
-    
-    table = db.Table(tablename)
-    response = table.update_item(
-        Key={
-            'schoolname': schoolname
-        },
-        UpdateExpression="set meals=:d",
-        ExpressionAttributeValues={
-            ":d": new_data
-        },
-        ReturnValues="UPDATED_NEW"
-    )
-    return response["HTTPStatusCode"]
+    return response["ResponseMetadata"]["HTTPStatusCode"]

@@ -4,7 +4,6 @@ import logging
 
 logging.basicConfig(filename="scrape.log", format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
 
-
 def convert_to_int(s) -> int:
     """
     Converts a string to int
@@ -24,7 +23,6 @@ def convert_to_int(s) -> int:
         res = "".join([i for i in num if i in allowed_chars])
         return int(float(res)) if res != "" else 0
         
-
 def extract_nutrient_info(s) -> dict:
     """
     Extract nutritional facts
@@ -43,8 +41,6 @@ def extract_nutrient_info(s) -> dict:
         temp = fact.split(":")
         # Check if we can perform the following action
         try:
-            # input could be "100 g" or "g"
-            
             result[temp[0].strip()] = convert_to_int(temp[1])
         except IndexError:
             continue
@@ -58,6 +54,7 @@ def scrape_school_menu(schoolname, school_endurl) -> None:
         school_endurl (str): The rest of the url after .com/
     """
     logging.info("Scraping {}".format(schoolname))
+    logging.info("-"*25)
     with sync_playwright() as p:
         browser = p.chromium.launch()
         
@@ -105,19 +102,24 @@ def scrape_school_menu(schoolname, school_endurl) -> None:
                             page.wait_for_timeout(5000)
                             
                             # Menu item name
-                            menu_item_name = page.query_selector('css=[class="modal-header"]')
-                            nutruitional_facts = page.query_selector('css=[class="modal-body"]')
+                            menu_item_name_element = page.query_selector('css=[class="modal-header"]')
+                            menu_item_name = menu_item_name_element.inner_text().replace("\n", "").replace("\u00d7", "").replace("\u00ae", "")
                             
-                            store_nutrients[menu_item_name.inner_text()] = extract_nutrient_info(nutruitional_facts.inner_text())
-                            store_tab[tab.inner_text()] = store_nutrients
+                            nutruitional_facts_element = page.query_selector('css=[class="modal-body"]')
+                            nutruitional_facts = nutruitional_facts_element.inner_text()
+                            
+                            store_nutrients[menu_item_name] = extract_nutrient_info(nutruitional_facts)
+                            store_tab[tab.inner_text().strip()] = store_nutrients
                             
                             # Close Nutritional popup
                             page.click('css=[aria-label="Close"]')
                             page.wait_for_timeout(1000)
 
                             # Store Calories and Portion size
-                            store_nutrients["Calories"]= calories[i].inner_text()
-                            store_nutrients["Serving Size"] = portions[i].inner_text()
+                            # store_nutrients["Calories"]= calories[i].inner_text()
+                            # store_nutrients["Serving Size"] = portions[i].inner_text()
+                            store_nutrients[menu_item_name]["Calories"] = calories[i].inner_text()
+                            store_nutrients[menu_item_name]["Portion"] = portions[i].inner_text()
                 
                         except Exception as e:
                             logging.error("Exception occured", exc_info=True)
@@ -134,7 +136,5 @@ def scrape_school_menu(schoolname, school_endurl) -> None:
             logging.error(msg="Recieved a HTTP Status code of {}".format(status_code))
     
         logging.info(msg="Completed Scraping script!")
+        logging.info("-"*25)
         browser.close()
-        
-
-scrape_school_menu("NYU", "NYUeats/whats-on-the-menu")
