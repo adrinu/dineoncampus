@@ -24,7 +24,7 @@ def get_menu(schoolname, tablename=secrets["tablename"]) -> int:
     ) 
     return response
 
-def add_school(schoolname, data, tablename=secrets["tablename"]) -> int:
+def add_menu(schoolname, data, tablename=secrets["tablename"]) -> int:
     """
     Adds meals to a school's database  
 
