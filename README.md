@@ -1,6 +1,6 @@
 # mealbuddyapp-scrapetool
 
-Scapes a school's menu on dineoncampus.com and updates dynamoDB database. This script runs on EC2 instance once everyday to update database with new menus for the day
+Scapes a school's menu on dineoncampus.com and updates dynamoDB database. This script runs on EC2 instance, a CRON Job will execute once everyday to update database with new menus for the day
 
 ## API Reference
 
