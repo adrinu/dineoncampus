@@ -22,3 +22,4 @@ Pick a schoolname from [dineoncampus_urls json file](https://github.com/adrinu/m
 
 - [Add more schools for the script to scrape](https://github.com/adrinu/mealbuddyapp-backend/blob/master/dineoncampus_urls.json)
 - Add a API call to the rerun scrape script to update a school menu if there were any changes made to the menu.
+- Add timestamp to database entries 
